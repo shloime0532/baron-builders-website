@@ -1,32 +1,22 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
+import { useInView } from "./use-in-view";
+
+function anim(visible: boolean, delay?: number) {
+  const base = visible ? "animate-fade-up" : "will-animate";
+  return delay ? `${base} animation-delay-${delay}` : base;
+}
 
 export default function About() {
-  const [visible, setVisible] = useState(false);
-  const ref = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setVisible(true);
-          observer.disconnect();
-        }
-      },
-      { threshold: 0.1 }
-    );
-    if (ref.current) observer.observe(ref.current);
-    return () => observer.disconnect();
-  }, []);
+  const { ref, hasAnimated } = useInView();
 
   return (
     <section id="about" className="py-16 sm:py-24 bg-cream" ref={ref}>
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="grid lg:grid-cols-2 gap-10 lg:gap-16 items-center">
           {/* Image */}
-          <div className={`order-2 lg:order-1 ${visible ? "animate-fade-up" : "opacity-0"}`}>
+          <div className={`order-2 lg:order-1 ${anim(hasAnimated)}`}>
             <div className="relative">
               {/* Main image */}
               <div className="rounded-2xl overflow-hidden shadow-xl">
@@ -58,7 +48,7 @@ export default function About() {
           </div>
 
           {/* Text */}
-          <div className={`order-1 lg:order-2 ${visible ? "animate-fade-up animation-delay-200" : "opacity-0"}`}>
+          <div className={`order-1 lg:order-2 ${anim(hasAnimated, 200)}`}>
             <span className="inline-block text-green-500 text-sm font-semibold tracking-widest uppercase mb-3">
               About Baron Builders
             </span>

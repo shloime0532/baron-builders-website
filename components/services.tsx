@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useInView } from "./use-in-view";
 
 const services = [
   {
@@ -65,29 +65,19 @@ const services = [
   },
 ];
 
-export default function Services() {
-  const [visible, setVisible] = useState(false);
-  const ref = useRef<HTMLDivElement>(null);
+function anim(visible: boolean, delay?: number) {
+  const base = visible ? "animate-fade-up" : "will-animate";
+  return delay ? `${base} animation-delay-${delay}` : base;
+}
 
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setVisible(true);
-          observer.disconnect();
-        }
-      },
-      { threshold: 0.1 }
-    );
-    if (ref.current) observer.observe(ref.current);
-    return () => observer.disconnect();
-  }, []);
+export default function Services() {
+  const { ref, hasAnimated } = useInView();
 
   return (
     <section id="services" className="py-16 sm:py-24 bg-cream" ref={ref}>
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         {/* Section header */}
-        <div className={`text-center max-w-2xl mx-auto mb-12 sm:mb-16 ${visible ? "animate-fade-up" : "opacity-0"}`}>
+        <div className={`text-center max-w-2xl mx-auto mb-12 sm:mb-16 ${anim(hasAnimated)}`}>
           <span className="inline-block text-green-500 text-sm font-semibold tracking-widest uppercase mb-3">
             What We Do
           </span>
@@ -108,9 +98,7 @@ export default function Services() {
           {services.map((service, i) => (
             <div
               key={service.title}
-              className={`group relative rounded-2xl border border-brown-100 bg-white p-6 sm:p-8 transition-all duration-300 hover:shadow-xl hover:shadow-brown-200/50 hover:-translate-y-1 hover:border-green-200 ${
-                visible ? `animate-fade-up animation-delay-${(i + 1) * 100}` : "opacity-0"
-              }`}
+              className={`group relative rounded-2xl border border-brown-100 bg-white p-6 sm:p-8 transition-all duration-300 hover:shadow-xl hover:shadow-brown-200/50 hover:-translate-y-1 hover:border-green-200 ${anim(hasAnimated, (i + 1) * 100)}`}
             >
               {/* Icon */}
               <div className="inline-flex items-center justify-center rounded-xl bg-green-50 p-3 text-green-500 transition-colors group-hover:bg-green-500 group-hover:text-white">

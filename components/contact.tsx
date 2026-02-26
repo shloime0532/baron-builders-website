@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useInView } from "./use-in-view";
 
 const contactInfo = [
   {
@@ -26,7 +26,7 @@ const contactInfo = [
   },
   {
     label: "Hours",
-    value: "Mon–Thu: 8AM–6PM\nFri: 8AM–1PM\nSat–Sun: Closed",
+    value: "Mon\u2013Thu: 8AM\u20136PM\nFri: 8AM\u20131PM\nSat\u2013Sun: Closed",
     href: null,
     icon: (
       <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
@@ -36,29 +36,19 @@ const contactInfo = [
   },
 ];
 
-export default function Contact() {
-  const [visible, setVisible] = useState(false);
-  const ref = useRef<HTMLDivElement>(null);
+function anim(visible: boolean, delay?: number) {
+  const base = visible ? "animate-fade-up" : "will-animate";
+  return delay ? `${base} animation-delay-${delay}` : base;
+}
 
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setVisible(true);
-          observer.disconnect();
-        }
-      },
-      { threshold: 0.1 }
-    );
-    if (ref.current) observer.observe(ref.current);
-    return () => observer.disconnect();
-  }, []);
+export default function Contact() {
+  const { ref, hasAnimated } = useInView();
 
   return (
     <section id="contact" className="py-16 sm:py-24 bg-cream" ref={ref}>
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         {/* Section header */}
-        <div className={`text-center max-w-2xl mx-auto mb-12 sm:mb-16 ${visible ? "animate-fade-up" : "opacity-0"}`}>
+        <div className={`text-center max-w-2xl mx-auto mb-12 sm:mb-16 ${anim(hasAnimated)}`}>
           <span className="inline-block text-green-500 text-sm font-semibold tracking-widest uppercase mb-3">
             Get in Touch
           </span>
@@ -80,9 +70,7 @@ export default function Contact() {
             {contactInfo.map((info, i) => (
               <div
                 key={info.label}
-                className={`rounded-2xl border border-brown-100 bg-white p-5 sm:p-6 transition-all duration-300 hover:shadow-lg hover:border-green-200 ${
-                  visible ? `animate-fade-up animation-delay-${(i + 1) * 100}` : "opacity-0"
-                }`}
+                className={`rounded-2xl border border-brown-100 bg-white p-5 sm:p-6 transition-all duration-300 hover:shadow-lg hover:border-green-200 ${anim(hasAnimated, (i + 1) * 100)}`}
               >
                 <div className="flex gap-4">
                   <div className="shrink-0 flex h-10 w-10 items-center justify-center rounded-xl bg-green-50 text-green-500">
@@ -112,7 +100,7 @@ export default function Contact() {
             ))}
 
             {/* Big CTA */}
-            <div className={`${visible ? "animate-fade-up animation-delay-400" : "opacity-0"}`}>
+            <div className={anim(hasAnimated, 400)}>
               <a
                 href="tel:7325349049"
                 className="flex items-center justify-center gap-3 rounded-2xl bg-green-500 p-5 sm:p-6 text-white font-semibold text-base sm:text-lg shadow-lg shadow-green-500/25 transition-all hover:bg-green-600 hover:shadow-xl hover:-translate-y-0.5"
@@ -126,7 +114,7 @@ export default function Contact() {
           </div>
 
           {/* Map embed */}
-          <div className={`lg:col-span-3 ${visible ? "animate-fade-up animation-delay-300" : "opacity-0"}`}>
+          <div className={`lg:col-span-3 ${anim(hasAnimated, 300)}`}>
             <div className="rounded-2xl overflow-hidden shadow-xl border border-brown-100 h-full min-h-[350px] sm:min-h-[400px]">
               <iframe
                 src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3046.8!2d-74.2177!3d40.0982!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zNDDCsDA1JzUzLjUiTiA3NMKwMTMnMDMuNyJX!5e0!3m2!1sen!2sus!4v1700000000000!5m2!1sen!2sus"

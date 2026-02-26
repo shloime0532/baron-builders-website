@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useInView } from "./use-in-view";
 
 const reasons = [
   {
@@ -61,29 +61,19 @@ const reasons = [
   },
 ];
 
-export default function WhyBaron() {
-  const [visible, setVisible] = useState(false);
-  const ref = useRef<HTMLDivElement>(null);
+function anim(visible: boolean, delay?: number) {
+  const base = visible ? "animate-fade-up" : "will-animate";
+  return delay ? `${base} animation-delay-${delay}` : base;
+}
 
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setVisible(true);
-          observer.disconnect();
-        }
-      },
-      { threshold: 0.1 }
-    );
-    if (ref.current) observer.observe(ref.current);
-    return () => observer.disconnect();
-  }, []);
+export default function WhyBaron() {
+  const { ref, hasAnimated } = useInView();
 
   return (
     <section className="py-16 sm:py-24 bg-white" ref={ref}>
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         {/* Section header */}
-        <div className={`text-center max-w-2xl mx-auto mb-12 sm:mb-16 ${visible ? "animate-fade-up" : "opacity-0"}`}>
+        <div className={`text-center max-w-2xl mx-auto mb-12 sm:mb-16 ${anim(hasAnimated)}`}>
           <span className="inline-block text-green-500 text-sm font-semibold tracking-widest uppercase mb-3">
             Why Choose Us
           </span>
@@ -104,9 +94,7 @@ export default function WhyBaron() {
           {reasons.map((reason, i) => (
             <div
               key={reason.number}
-              className={`group flex gap-4 sm:gap-6 rounded-2xl border border-brown-100 bg-cream/50 p-5 sm:p-6 transition-all duration-300 hover:bg-white hover:shadow-lg hover:border-green-200 ${
-                visible ? `animate-fade-up animation-delay-${(i + 1) * 100}` : "opacity-0"
-              }`}
+              className={`group flex gap-4 sm:gap-6 rounded-2xl border border-brown-100 bg-cream/50 p-5 sm:p-6 transition-all duration-300 hover:bg-white hover:shadow-lg hover:border-green-200 ${anim(hasAnimated, (i + 1) * 100)}`}
             >
               {/* Number/Icon */}
               <div className="shrink-0">

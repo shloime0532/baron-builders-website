@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
+import { useInView } from "./use-in-view";
 
 const features = [
   {
@@ -22,23 +22,13 @@ const features = [
   },
 ];
 
-export default function FeaturedProject() {
-  const [visible, setVisible] = useState(false);
-  const ref = useRef<HTMLDivElement>(null);
+function anim(visible: boolean, delay?: number) {
+  const base = visible ? "animate-fade-up" : "will-animate";
+  return delay ? `${base} animation-delay-${delay}` : base;
+}
 
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setVisible(true);
-          observer.disconnect();
-        }
-      },
-      { threshold: 0.1 }
-    );
-    if (ref.current) observer.observe(ref.current);
-    return () => observer.disconnect();
-  }, []);
+export default function FeaturedProject() {
+  const { ref, hasAnimated } = useInView();
 
   return (
     <section id="projects" className="py-16 sm:py-24 bg-brown-800 relative overflow-hidden" ref={ref}>
@@ -51,7 +41,7 @@ export default function FeaturedProject() {
 
       <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         {/* Section header */}
-        <div className={`text-center max-w-2xl mx-auto mb-12 sm:mb-16 ${visible ? "animate-fade-up" : "opacity-0"}`}>
+        <div className={`text-center max-w-2xl mx-auto mb-12 sm:mb-16 ${anim(hasAnimated)}`}>
           <span className="inline-block text-green-300 text-sm font-semibold tracking-widest uppercase mb-3">
             Featured Project
           </span>
@@ -70,7 +60,7 @@ export default function FeaturedProject() {
         {/* Project showcase */}
         <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
           {/* Image */}
-          <div className={`${visible ? "animate-fade-up animation-delay-200" : "opacity-0"}`}>
+          <div className={anim(hasAnimated, 200)}>
             <div className="relative rounded-2xl overflow-hidden shadow-2xl">
               <Image
                 src="/images/hero.jpg"
@@ -95,7 +85,7 @@ export default function FeaturedProject() {
             {features.map((feature, i) => (
               <div
                 key={feature.title}
-                className={`flex gap-4 ${visible ? `animate-fade-up animation-delay-${(i + 2) * 100}` : "opacity-0"}`}
+                className={`flex gap-4 ${anim(hasAnimated, (i + 2) * 100)}`}
               >
                 {/* Check icon */}
                 <div className="shrink-0 mt-1">
@@ -114,7 +104,7 @@ export default function FeaturedProject() {
             ))}
 
             {/* CTA */}
-            <div className={`pt-4 ${visible ? "animate-fade-up animation-delay-600" : "opacity-0"}`}>
+            <div className={`pt-4 ${anim(hasAnimated, 600)}`}>
               <a
                 href="tel:7325349049"
                 className="inline-flex items-center gap-2 rounded-full bg-green-500 px-6 py-3.5 text-sm sm:text-base font-semibold text-white shadow-lg shadow-green-500/25 transition-all hover:bg-green-600 hover:shadow-xl hover:-translate-y-0.5"

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useInView } from "./use-in-view";
 
 const testimonials = [
   {
@@ -40,23 +40,13 @@ function StarRating({ rating }: { rating: number }) {
   );
 }
 
-export default function Testimonials() {
-  const [visible, setVisible] = useState(false);
-  const ref = useRef<HTMLDivElement>(null);
+function anim(visible: boolean, delay?: number) {
+  const base = visible ? "animate-fade-up" : "will-animate";
+  return delay ? `${base} animation-delay-${delay}` : base;
+}
 
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setVisible(true);
-          observer.disconnect();
-        }
-      },
-      { threshold: 0.1 }
-    );
-    if (ref.current) observer.observe(ref.current);
-    return () => observer.disconnect();
-  }, []);
+export default function Testimonials() {
+  const { ref, hasAnimated } = useInView();
 
   return (
     <section className="py-16 sm:py-24 bg-green-600 relative overflow-hidden" ref={ref}>
@@ -66,7 +56,7 @@ export default function Testimonials() {
 
       <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         {/* Section header */}
-        <div className={`text-center max-w-2xl mx-auto mb-12 sm:mb-16 ${visible ? "animate-fade-up" : "opacity-0"}`}>
+        <div className={`text-center max-w-2xl mx-auto mb-12 sm:mb-16 ${anim(hasAnimated)}`}>
           <span className="inline-block text-green-200 text-sm font-semibold tracking-widest uppercase mb-3">
             Testimonials
           </span>
@@ -86,9 +76,7 @@ export default function Testimonials() {
           {testimonials.map((testimonial, i) => (
             <div
               key={testimonial.name}
-              className={`rounded-2xl bg-white p-6 sm:p-8 shadow-xl transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl ${
-                visible ? `animate-fade-up animation-delay-${(i + 1) * 100}` : "opacity-0"
-              }`}
+              className={`rounded-2xl bg-white p-6 sm:p-8 shadow-xl transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl ${anim(hasAnimated, (i + 1) * 100)}`}
             >
               {/* Stars */}
               <StarRating rating={testimonial.rating} />
@@ -113,7 +101,7 @@ export default function Testimonials() {
         </div>
 
         {/* Google rating badge */}
-        <div className={`mt-10 sm:mt-12 text-center ${visible ? "animate-fade-up animation-delay-400" : "opacity-0"}`}>
+        <div className={`mt-10 sm:mt-12 text-center ${anim(hasAnimated, 400)}`}>
           <div className="inline-flex items-center gap-3 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 px-6 py-3">
             <svg className="h-5 w-5 text-yellow-300" fill="currentColor" viewBox="0 0 20 20">
               <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />

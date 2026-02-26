@@ -42,11 +42,11 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Fade-up animation */
+/* Fade-up animation — progressive enhancement */
 @keyframes fade-up {
   from {
     opacity: 0;
-    transform: translateY(30px);
+    transform: translateY(24px);
   }
   to {
     opacity: 1;
@@ -54,9 +54,15 @@ body {
   }
 }
 
+/* Elements waiting to animate: hidden */
+.will-animate {
+  opacity: 0;
+  transform: translateY(24px);
+}
+
+/* When triggered: play animation */
 .animate-fade-up {
   animation: fade-up 0.6s ease-out forwards;
-  opacity: 0;
 }
 
 .animation-delay-100 { animation-delay: 0.1s; }
